@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统(课程管理)</title>
+    <!--连接样式css文件-->
+    <link rel="stylesheet" href="/static/css/source.css">
+</head>
+<body>
+    <div class = "index">
+        <li>学生信息管理系统</li>
+        <!--查询课程模块-->
+        <div class="select-source-box">
+            <input id="select-source-id" placeholder="课程号">
+            <button onclick="selectsource()">查询课程信息</button>
+        </div>
+        <!--删除课程模块-->
+        <div class="delete-source-box">
+            <input id="delete-source-id" placeholder="课程号">
+            <button onclick="deletesource()">删除课程信息</button>
+        </div>
+        <!--添加课程模块-->
+        <div class="add-source-box">
+            <input id="add-source-id" placeholder="课程号">
+            <input id="add-source-name" placeholder="课程名">
+            <input id="hours" placeholder="学时(小时)">
+            <input id="semester" placeholder="学期">
+            <input id="type" placeholder="课程类型">
+            <input id="credit" placeholder="学分">
+            <button onclick="addsource()">添加课程信息</button>
+        </div>
+        <span>当前为课程管理</span>
+    </div>
+    <div class = "nav">
+        <!--导航功能模块-->
+        <div class="left">
+        <a href="/student">学生管理</a>
+        <a href="/source">课程管理</a>
+        <a href="/teacher">教师管理</a>
+        <a href="/score">成绩管理</a>
+        <a href="/teaching">授课管理</a>
+        </div>
+        <!--显示课程信息模块-->
+        <div class="right">
+            <table>
+                <thead>
+                    <tr>
+                        <th>课程号</th>
+                        <th>课程名</th>
+                        <th>学时(小时)</th>
+                        <th>学期</th>
+                        <th>课程类型</th>
+                        <th>学分</th>
+                    </tr>
+                </thead>
+                <tbody id="sourceList"></tbody>
+            </table>
+        </div>
+        <script>
+            //页面加载自动获取数据列表
+            window.onload=getsourceList;
+            //获取课程列表
+            async function getsourceList(){
+                let res = await fetch("http://127.0.0.1:5000/source/getsource");
+                let result = await res.json();
+                if (result.code === 200) {
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.source_id}</td>
+                            <td>${s.source_name}</td>
+                            <td>${s.source_hours}</td>
+                            <td>${s.semester}</td>
+                            <td>${s.type}</td>
+                            <td>${s.credit}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("sourceList").innerHTML = html;
+                }
+            }
+            //查询课程信息
+            async function selectsource(){
+                let select_source_id = document.getElementById("select-source-id").value.trim();
+                if (!select_source_id){
+                    alert("请输入要查询的课程号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/source/selectsource?source_id="+select_source_id);
+                let result = await res.json();
+                if(result.code===200){
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.source_id}</td>
+                            <td>${s.source_name}</td>
+                            <td>${s.source_hours}</td>
+                            <td>${s.semester}</td>
+                            <td>${s.type}</td>
+                            <td>${s.credit}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("sourceList").innerHTML = html;
+                }
+            }
+            //添加课程信息
+            async function addsource(){
+                let data = {
+                    source_id:document.getElementById("add-source-id").value,
+                    source_name:document.getElementById("add-source-name").value,
+                    source_hours:document.getElementById("hours").value,
+                    semester:document.getElementById("semester").value,
+                    type:document.getElementById("type").value,
+                    credit:document.getElementById("credit").value,
+                };
+                let res = await fetch("http://127.0.0.1:5000/source/addsource",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify(data)
+                });
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200) await getsourceList();
+            }
+            //删除课程信息
+            async function deletesource(){
+                let delete_source_id = document.getElementById("delete-source-id").value.trim();
+                if (!delete_source_id){
+                    alert("请输入要删除的课程号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/source/deletesource",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({source_id:delete_source_id})
+                })
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200)  await getsourceList();
+            }
+        </script>
+    </div>
+</body>
+</html>

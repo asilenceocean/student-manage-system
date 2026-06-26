@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统(教师管理)</title>
+    <!--连接样式css文件-->
+    <link rel="stylesheet" href="/static/css/teacher.css">
+</head>
+<body>
+    <div class = "index">
+        <li>学生信息管理系统</li>
+        <!--查询教师信息模块-->
+        <div class="select-teacher-box">
+            <input id="select-teacher-id" placeholder="教师编号">
+            <button onclick="selectTeacher()">查询教师信息</button>
+        </div>
+        <div class="delete-teacher-box">
+            <input id="delete-teacher-id" placeholder="教师编号">
+            <button onclick="deleteTeacher()">删除教师信息</button>
+        </div>
+        <!--添加教师模块-->
+        <div class="add-teacher-box">
+            <input id="teacher-id" placeholder="教师编号">
+            <input id="teacher-name" placeholder="教师姓名">
+            <input id="title" placeholder="职称">
+            <input id="college-id" placeholder="学院编号">
+            <input id="work-years" placeholder="在职时间">
+            <input id="phone" placeholder="电话">
+            <button onclick="addTeacher()">添加教师信息</button>
+        </div>
+        <span>当前为教师管理</span>
+    </div>
+    <div class = "nav">
+        <!--导航功能模块-->
+        <div class="left">
+        <a href="/student">学生管理</a>
+        <a href="/source">课程管理</a>
+        <a href="/teacher">教师管理</a>
+        <a href="/score">成绩管理</a>
+        <a href="/teaching">授课管理</a>
+        </div>
+        <!--显示教师模块-->
+        <div class="right">
+            <table>
+                <thead>
+                    <tr>
+                        <th>教师编号</th>
+                        <th>教师姓名</th>
+                        <th>职称</th>
+                        <th>学院</th>
+                        <th>在职时间</th>
+                        <th>电话</th>
+                    </tr>
+                </thead>
+                <tbody id="teacherList"></tbody>
+            </table>
+        </div>
+        <script>
+            //页面加载自动获取数据列表
+            window.onload=getTeacherList;
+            //获取教师列表
+            async function getTeacherList() {
+                let res = await fetch("http://127.0.0.1:5000/teacher/getteacher");
+                let result = await res.json();
+                if (result.code === 200) {
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.teacher_id}</td>
+                            <td>${s.teacher_name}</td>
+                            <td>${s.title}</td>
+                            <td>${s.college_name}</td>
+                            <td>${s.work_years}</td>
+                            <td>${s.phone}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("teacherList").innerHTML = html;
+                }
+            }
+            //查询教师信息
+            async function selectTeacher(){
+                let select_teacher_id = document.getElementById("select-teacher-id").value.trim();
+                if (!select_teacher_id){
+                    alert("请输入要查询的教师编号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/teacher/selectteacher?teacher_id="+select_teacher_id);
+                let result = await res.json();
+                if(result.code===200){
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.teacher_id}</td>
+                            <td>${s.teacher_name}</td>
+                            <td>${s.title}</td>
+                            <td>${s.college_name}</td>
+                            <td>${s.work_years}</td>
+                            <td>${s.phone}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("teacherList").innerHTML = html;
+                }
+            }
+            //删除教师
+            async function deleteTeacher(){
+                let delete_teacher_id = document.getElementById("delete-teacher-id").value.trim();
+                if (!delete_teacher_id){
+                    alert("请输入要删除的教师编号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/teacher/deleteteacher",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({teacher_id:delete_teacher_id})
+                })
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200)  await getTeacherList();
+            }
+            //添加教师
+            async function addTeacher(){
+                let data = {
+                    teacher_id:document.getElementById("teacher-id").value,
+                    teacher_name:document.getElementById("teacher-name").value,
+                    title:document.getElementById("title").value,
+                    college_id:document.getElementById("college-id").value,
+                    work_years:document.getElementById("work-years").value,
+                    phone:document.getElementById("phone").value,
+                };
+                let res = await fetch("http://127.0.0.1:5000/teacher/addteacher",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify(data)
+                });
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200) await getTeacherList()
+            }
+        </script>
+    </div>
+</body>
+</html>

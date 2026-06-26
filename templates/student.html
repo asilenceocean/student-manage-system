@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统(学生管理)</title>
+    <!--连接样式css文件-->
+    <link rel="stylesheet" href="/static/css/student.css">
+</head>
+<body>
+    <div class = "index">
+        <li>学生信息管理系统</li>
+        <!--查询学生模块-->
+        <div class="select-box">
+            <input id="select_id" placeholder="学号">
+            <button onclick="selectStudent()">查询学生信息</button>
+        </div>
+        <!--删除学生模块-->
+        <div class="delete-box">
+            <input id="delete_id" placeholder="学号">
+            <button onclick="deleteStudent()">删除学生信息</button>
+        </div>
+        <!--添加学生模块-->
+        <div class="add-box">
+            <input id="name" placeholder="姓名">
+            <input id="add_id" placeholder="学号">
+            <input id="sex" placeholder="性别">
+            <input id="class_name" placeholder="班级">
+            <input id="phone" placeholder="电话">
+            <button onclick="addStudent()">添加学生信息</button>
+        </div>
+        <span>当前为学生管理</span>
+    </div>
+    <div class = "nav">
+        <!--导航功能模块-->
+        <div class="left">
+        <a href="/student">学生管理</a>
+        <a href="/source">课程管理</a>
+        <a href="/teacher">教师管理</a>
+        <a href="/score">成绩管理</a>
+        <a href="/teaching">授课管理</a>
+        </div>
+        <!--显示学生模块-->
+        <div class="right">
+            <table>
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>学号</th>
+                        <th>性别</th>
+                        <th>班级</th>
+                        <th>电话</th>
+                    </tr>
+                </thead>
+                <tbody id="studentList"></tbody>
+            </table>
+        </div>
+        <script>
+            //页面加载自动获取数据列表
+            window.onload=getList;
+            //获取学生列表
+            async function getList() {
+                let res = await fetch("http://127.0.0.1:5000/student/getstudent");
+                let result = await res.json();
+                if (result.code === 200) {
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.name}</td>
+                            <td>${s.student_id}</td>
+                            <td>${s.sex}</td>
+                            <td>${s.class_name}</td>
+                            <td>${s.phone}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("studentList").innerHTML = html;
+                }
+            }
+            //查询学生
+            async function selectStudent(){
+                let select_id = document.getElementById("select_id").value.trim();
+                if (!select_id){
+                    alert("请输入要查询的学生学号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/student/selectstudent?student_id="+select_id);
+                let result = await res.json();
+                if(result.code===200){
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.name}</td>
+                            <td>${s.student_id}</td>
+                            <td>${s.sex}</td>
+                            <td>${s.class_name}</td>
+                            <td>${s.phone}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("studentList").innerHTML = html;
+                }
+            }
+            //添加学生
+            async function addStudent(){
+                let data = {
+                    name:document.getElementById("name").value,
+                    student_id:document.getElementById("add_id").value,
+                    sex:document.getElementById("sex").value,
+                    class_name:document.getElementById("class_name").value,
+                    phone:document.getElementById("phone").value,
+                };
+                let res = await fetch("http://127.0.0.1:5000/student/addstudent",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify(data)
+                });
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200) await getList()
+            }
+            //删除学生
+            async function deleteStudent(){
+                let delete_id = document.getElementById("delete_id").value.trim();
+                if (!delete_id){
+                    alert("请输入要删除的学生学号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/student/deletestudent",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({student_id:delete_id})
+                })
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200)  await getList();
+            }
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+/*清除默认边距*/
+*{
+    margin:0;
+    padding:0;
+}
+/*最上边导航栏*/
+.index{
+    height:175px;
+    width:100%;
+    background-color:aquamarine;
+    position:relative;
+}
+.index>li{
+    margin-top:60px;
+    margin-bottom: 60px;
+    padding: 0 120px;
+    float:left;
+    font-size: 30px;
+    list-style:none;
+    color:black;
+}
+.index>.add-grade-box{
+    background: aquamarine;
+    padding: 13px;
+    border-radius: 8px;
+    display: flex;
+    gap:10px;
+    flex-wrap: wrap;
+    width:850px;
+}
+.add-grade-box>input{
+    padding: 8px 8px;
+    border:1px solid #ddd;
+    border-radius: 4px;
+    width: 120px;
+}
+.index>.select-grade-box{
+    background:aquamarine;
+    padding:12px;
+    border-radius: 8px;
+    display: flex;
+    gap:10px;
+    flex-wrap: wrap;
+    width:500px;
+}
+.select-grade-box>input{
+    padding: 8px 8px;
+    border:1px solid #ddd;
+    border-radius: 4px;
+    width: 120px;
+}
+.index>.delete-grade-box{
+    background: aquamarine;
+    padding: 13px;
+    border-radius: 8px;
+    display: flex;
+    gap:10px;
+    flex-wrap: wrap;
+    width:500px;
+}
+.delete-grade-box>input{
+    padding: 8px 8px;
+    border:1px solid #ddd;
+    border-radius: 4px;
+    width: 120px;
+}
+.index>label{
+    position:fixed;
+    right:1000px;
+    top:123px;
+}
+.index>input{
+    position:fixed;
+    right:825px;
+    top:125px;
+}
+.index>button{
+    position:fixed;
+    right:780px;
+    top:124px;
+}
+.index>span{
+    position:fixed;
+    right:20px;
+    top:5px;
+    font-size: 12px;
+}
+.nav{
+    width:100%;
+    height:650px;
+}
+.nav>.left{
+    width: 15%;
+    height:650px;
+    float:left;
+}
+.left>a{
+    float:left;
+    width:70px;
+    height:40px;
+    margin-left: 100px;
+    margin-top:70px;
+    color:black;
+    text-decoration:none;
+    position:fixed;
+}
+.left>a:nth-of-type(2){
+    top: 295px;
+}
+.left>a:nth-of-type(3){
+    top: 395px;
+}
+.left>a:nth-of-type(4){
+    top: 495px;
+}
+.left>a:nth-of-type(5){
+    top: 595px;
+}
+a:hover{
+    cursor:pointer;
+    color: rgb(62,189,227);
+}
+.nav>.right>{
+    float:left;
+    background-color: red;
+    width:75%;
+    height: 650px;
+}
+table{
+    width:85%;
+    border-collapse: collapse;
+    background:white;
+    border-radius: 8px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+th,td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #2d8cf0;
+    color: white;
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统(授课管理)</title>
+    <!--连接样式css文件-->
+    <link rel="stylesheet" href="/static/css/teaching.css">
+</head>
+<body>
+    <div class = "index">
+        <li>学生信息管理系统</li>
+        <!--查询授课信息模块-->
+        <div class="select-teaching-box">
+            <input id="teacher-select-id" placeholder="教师编号">
+            <button onclick="selectTeaching()">查询授课信息</button>
+        </div>
+        <!--删除授课信息模块-->
+        <div class="delete-teaching-box">
+            <input id="teacher-delete-id" placeholder="教师编号">
+            <input id="source-delete-id" placeholder="课程号">
+            <button onclick="deleteTeaching()">删除授课信息</button>
+        </div>
+        <!--添加授课信息模块-->
+        <div class="add-teaching-box">
+            <input id="teaching-add-id" placeholder="授课编号">
+            <input id="teacher-add-id" placeholder="教师编号">
+            <input id="source-add-id" placeholder="课程编号">
+            <input id="add-location" placeholder="授课地点">
+            <input id="add-weekday" placeholder="上课时间(周)">
+            <input id="add-class-time" placeholder="上课时间(节)">
+            <input id="add-semester" placeholder="学期">
+            <button onclick="addTeaching()">添加授课信息</button>
+        </div>
+        <span>当前为授课管理</span>
+    </div>
+    <div class = "nav">
+        <!--导航功能模块-->
+        <div class="left">
+        <a href="/student">学生管理</a>
+        <a href="/source">课程管理</a>
+        <a href="/teacher">教师管理</a>
+        <a href="/score">成绩管理</a>
+        <a href="/teaching">授课管理</a>
+        </div>
+        <!--显示授课信息模块-->
+        <div class="right">
+            <table>
+                <thead>
+                    <tr>
+                        <th>教师姓名</th>
+                        <th>课程名</th>
+                        <th>授课地点</th>
+                        <th>上课时间(周)</th>
+                        <th>上课时间(节)</th>
+                        <th>学期</th>
+                    </tr>
+                </thead>
+                <tbody id="teachingList"></tbody>
+            </table>
+        </div>
+        <script>
+            //页面加载自动获取数据列表
+            window.onload=getTeachingList;
+            //获取授课信息列表
+            async function getTeachingList(){
+                let res = await fetch("http://127.0.0.1:5000/teaching/getteaching");
+                let result = await res.json();
+                if (result.code === 200) {
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.teacher_name}</td>
+                            <td>${s.source_name}</td>
+                            <td>${s.location}</td>
+                            <td>${s.weekday}</td>
+                            <td>${s.class_time}</td>
+                            <td>${s.semester}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("teachingList").innerHTML = html;
+                }
+            }
+            //查询授课信息
+            async function selectTeaching(){
+                let select_teaching_id = document.getElementById("teacher-select-id").value.trim();
+                if (!select_teaching_id){
+                    alert("请输入要查询的授课老师编号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/teaching/selectteaching?teacher_id="+select_teaching_id);
+                let result = await res.json();
+                if(result.code===200){
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.teacher_name}</td>
+                            <td>${s.source_name}</td>
+                            <td>${s.location}</td>
+                            <td>${s.weekday}</td>
+                            <td>${s.class_time}</td>
+                            <td>${s.semester}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("teachingList").innerHTML = html;
+                }
+            }
+            //添加授课信息
+            async function addTeaching(){
+                let data = {
+                    teaching_id:document.getElementById("teaching-add-id").value,
+                    teacher_id:document.getElementById("teacher-add-id").value,
+                    source_id:document.getElementById("source-add-id").value,
+                    location:document.getElementById("add-location").value,
+                    weekday:document.getElementById("add-weekday").value,
+                    class_time:document.getElementById("add-class-time").value,
+                    semester:document.getElementById("add-semester").value,
+                };
+                let res = await fetch("http://127.0.0.1:5000/teaching/addteaching",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify(data)
+                });
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200) await getTeachingList()
+            }
+            //删除授课信息
+            async function deleteTeaching(){
+                let delete_teacher_id = document.getElementById("teacher-delete-id").value.trim();
+                let delete_source_id = document.getElementById("source-delete-id").value.trim();
+                if (!delete_teacher_id || !delete_source_id){
+                    alert("请输入要删除的授课教师编号和课程号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/teaching/deleteteaching",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({teacher_id:delete_teacher_id,source_id:delete_source_id})
+                })
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200)  await getTeachingList();
+            }
+        </script>
+    </div>
+</body>
+</html>

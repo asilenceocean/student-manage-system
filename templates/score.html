@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统(成绩管理)</title>
+    <!--连接样式css文件-->
+    <link rel="stylesheet" href="/static/css/score.css">
+</head>
+<body>
+    <div class = "index">
+        <li>学生信息管理系统</li>
+        <!--查询学生成绩模块-->
+        <div class="select-grade-box">
+            <input id="select-student-id" placeholder="学号">
+            <input id="select-source-id" placeholder="课程号">
+            <button onclick="selectgrade()">查询学生该课程成绩</button>
+        </div>
+        <!--删除学生成绩模块-->
+        <div class="delete-grade-box">
+            <input id="delete-student-id" placeholder="学号">
+            <input id="delete-source-id" placeholder="课程号">
+            <button onclick="deletegrade()">删除学生该课程成绩</button>
+        </div>
+        <!--添加学生成绩模块-->
+        <div class="add-grade-box">
+            <input id="add-student-id" placeholder="学号">
+            <input id="add-source-id" placeholder="课程号">
+            <input id="add-grade-score" placeholder="分数">
+            <button onclick="addgrade()">添加学生成绩</button>
+        </div>
+        <span>当前为成绩管理</span>
+    </div>
+    <div class = "nav">
+        <!--导航功能模块-->
+        <div class="left">
+        <a href="/student">学生管理</a>
+        <a href="/source">课程管理</a>
+        <a href="/teacher">教师管理</a>
+        <a href="/score">成绩管理</a>
+        <a href="/teaching">授课管理</a>
+        </div>
+        <!--显示学生模块-->
+        <div class="right">
+            <table>
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>学号</th>
+                        <th>课程名</th>
+                        <th>分数</th>
+                    </tr>
+                </thead>
+                <tbody id="gradeList"></tbody>
+            </table>
+        </div>
+        <script>
+            //页面加载自动获取数据列表
+            window.onload=getgradeList;
+            //获取学生成绩列表
+            async function getgradeList(){
+                let res = await fetch("http://127.0.0.1:5000/score/getscore");
+                let result = await res.json();
+                if (result.code === 200) {
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.name}</td>
+                            <td>${s.student_id}</td>
+                            <td>${s.source_name}</td>
+                            <td>${s.score}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("gradeList").innerHTML = html;
+                }
+            }
+            //查询学生成绩
+            async function selectgrade(){
+                let select_student_id = document.getElementById("select-student-id").value.trim();
+                let select_source_id = document.getElementById("select-source-id").value.trim();
+                if (!select_student_id || !select_source_id){
+                    alert("请输入要查询的学生学号和课程号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/score/selectscore?student_id="+select_student_id+"&source_id="+select_source_id);
+                let result = await res.json();
+                if(result.code===200){
+                    let html = "";
+                    for (let s of result.data) {
+                        html += `
+                        <tr>
+                            <td>${s.name}</td>
+                            <td>${s.student_id}</td>
+                            <td>${s.source_name}</td>
+                            <td>${s.score}</td>
+                        </tr>`;
+                    }
+                    document.getElementById("gradeList").innerHTML = html;
+                }
+            }
+            //删除学生成绩
+            async function deletegrade(){
+                let delete_student_id = document.getElementById("delete-student-id").value.trim();
+                let delete_source_id = document.getElementById("delete-source-id").value.trim();
+                if (!delete_student_id || !delete_source_id){
+                    alert("请输入要删除的学生学号和课程号");
+                    return;
+                }
+                let res = await fetch("http://127.0.0.1:5000/score/deletescore",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({student_id:delete_student_id,source_id:delete_source_id})
+                })
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200)  await getgradeList();
+            }
+            //添加学生成绩
+            async function addgrade(){
+                let data = {
+                    student_id:document.getElementById("add-student-id").value,
+                    source_id:document.getElementById("add-source-id").value,
+                    score:document.getElementById("add-grade-score").value,
+                };
+                let res = await fetch("http://127.0.0.1:5000/score/addscore",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify(data)
+                });
+                let result = await res.json();
+                alert(result.msg);
+                if(result.code===200) await getgradeList()
+            }
+        </script>
+    </div>
+</body>
+</html>
